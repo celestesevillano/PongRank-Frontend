@@ -26,6 +26,17 @@ export const Colors = {
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
+// PongRank siempre se ve oscuro en las pantallas de auth/onboarding, independiente del tema del sistema.
+export const Brand = {
+  red: '#E8262F',
+  redDark: '#B01E26',
+  background: '#000000',
+  surface: '#141416',
+  border: '#2A2A2E',
+  text: '#FFFFFF',
+  textSecondary: '#9A9CA3',
+} as const;
+
 export const Fonts = Platform.select({
   ios: {
     /** iOS `UIFontDescriptorSystemDesignDefault` */
