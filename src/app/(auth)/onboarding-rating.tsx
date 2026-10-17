@@ -9,7 +9,7 @@ import { AuthButton } from '@/components/auth/auth-button';
 import { AuthInput } from '@/components/auth/auth-input';
 import { Brand, Spacing } from '@/constants/theme';
 import { useSession } from '@/context/session';
-import { api } from '@/lib/api';
+import { playersService } from '@/services/players.service';
 
 const PRESETS = [
   { label: 'Nunca jugué', value: 800 },
@@ -18,7 +18,7 @@ const PRESETS = [
 ];
 
 export default function OnboardingRatingScreen() {
-  const { token, player, updateLocalPlayer } = useSession();
+  const { player, updateLocalPlayer } = useSession();
   const [rating, setRating] = useState(1500);
   const [federated, setFederated] = useState(false);
   const [category, setCategory] = useState('');
@@ -28,10 +28,10 @@ export default function OnboardingRatingScreen() {
     // Nota: el rating inicial es solo referencial en esta pantalla — el backend
     // calcula el Glicko-2 real a partir de los partidos jugados, no hay un endpoint
     // para fijarlo manualmente. Sí persistimos la declaración de federado.
-    if (token && player && federated) {
+    if (player && federated) {
       setSaving(true);
       try {
-        const updated = await api.updatePlayer(token, player.id, {
+        const updated = await playersService.update(player.id, {
           federatedDeclared: true,
           categoryFdptm: category || undefined,
         });

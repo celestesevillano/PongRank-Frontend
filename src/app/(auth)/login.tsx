@@ -8,7 +8,8 @@ import { AuthButton } from '@/components/auth/auth-button';
 import { AuthInput } from '@/components/auth/auth-input';
 import { Brand, Spacing } from '@/constants/theme';
 import { useSession } from '@/context/session';
-import { ApiError, api } from '@/lib/api';
+import { authService } from '@/services/auth.service';
+import { ApiError } from '@/utils/api-error';
 
 export default function LoginScreen() {
   const { signInWithAuthResponse } = useSession();
@@ -24,7 +25,7 @@ export default function LoginScreen() {
     setError(null);
     setLoading(true);
     try {
-      const auth = await api.login({ email: email.trim(), password });
+      const auth = await authService.login({ email: email.trim(), password });
       // Un usuario que ya inicia sesión no vuelve a pasar por el onboarding.
       await signInWithAuthResponse(auth, { skipOnboarding: true });
     } catch (err) {
