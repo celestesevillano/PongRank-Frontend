@@ -7,10 +7,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AuthInput } from '@/components/auth/auth-input';
 import { Brand, Spacing } from '@/constants/theme';
 import { useSession } from '@/context/session';
-import { api, ApiError, type CommunityResponse } from '@/lib/api';
+import { communitiesService } from '@/services/communities.service';
+import type { CommunityResponse } from '@/types/api';
+import { toApiError } from '@/utils/api-error';
 
 export default function OnboardingCommunityScreen() {
-  const { token, completeOnboarding } = useSession();
+  const { completeOnboarding } = useSession();
   const [query, setQuery] = useState('');
   const [communities, setCommunities] = useState<CommunityResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,34 +21,34 @@ export default function OnboardingCommunityScreen() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!token) return;
+    const controller = new AbortController();
     let cancelled = false;
     setLoading(true);
     const timeout = setTimeout(async () => {
       try {
-        const page = await api.searchCommunities(token, query.trim() || undefined);
+        const page = await communitiesService.search({ name: query.trim() || undefined }, controller.signal);
         if (!cancelled) setCommunities(page.content);
       } catch (err) {
-        if (!cancelled) setError(err instanceof ApiError ? err.message : 'No se pudieron cargar las comunidades');
+        if (!cancelled) setError(toApiError(err).message);
       } finally {
         if (!cancelled) setLoading(false);
       }
     }, 300);
     return () => {
       cancelled = true;
+      controller.abort();
       clearTimeout(timeout);
     };
-  }, [token, query]);
+  }, [query]);
 
   const handleJoin = async (community: CommunityResponse) => {
-    if (!token) return;
     setJoiningId(community.id);
     setError(null);
     try {
-      await api.joinCommunity(token, community.id);
+      await communitiesService.join(community.id);
       setJoinedIds((prev) => new Set(prev).add(community.id));
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'No se pudo unir a la comunidad');
+      setError(toApiError(err).message);
     } finally {
       setJoiningId(null);
     }

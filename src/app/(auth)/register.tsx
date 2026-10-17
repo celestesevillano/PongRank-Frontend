@@ -8,7 +8,8 @@ import { AuthButton } from '@/components/auth/auth-button';
 import { AuthInput } from '@/components/auth/auth-input';
 import { Brand, Spacing } from '@/constants/theme';
 import { useSession } from '@/context/session';
-import { ApiError, api } from '@/lib/api';
+import { authService } from '@/services/auth.service';
+import { ApiError } from '@/utils/api-error';
 
 export default function RegisterScreen() {
   const { signInWithAuthResponse } = useSession();
@@ -25,7 +26,7 @@ export default function RegisterScreen() {
     setError(null);
     setLoading(true);
     try {
-      const auth = await api.register({ name: name.trim(), email: email.trim(), password });
+      const auth = await authService.register({ name: name.trim(), email: email.trim(), password });
       await signInWithAuthResponse(auth);
       router.replace('/(auth)/onboarding-rating');
     } catch (err) {

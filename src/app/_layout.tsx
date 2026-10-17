@@ -8,13 +8,13 @@ import { SessionProvider, useSession } from '@/context/session';
 SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
-  const { token, isLoading, onboardingComplete } = useSession();
+  const { isAuthenticated, isLoading, onboardingComplete } = useSession();
 
   if (isLoading) {
     return null;
   }
 
-  const showApp = !!token && onboardingComplete;
+  const showApp = isAuthenticated && onboardingComplete;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
